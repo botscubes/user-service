@@ -1,7 +1,7 @@
 package redis
 
 import (
-	"user-service/internal/config"
+	"github.com/botscubes/user-service/internal/config"
 
 	"github.com/go-redis/redis"
 )

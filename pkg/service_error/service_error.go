@@ -1,7 +1,7 @@
-package errors
+package service_error
 
 // New error for service.
-func New(code int, message string) error {
+func New(code int, message string) *ServiceError {
 	return &ServiceError{code, message}
 }
 

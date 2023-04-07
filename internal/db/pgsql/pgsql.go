@@ -2,7 +2,8 @@ package pgsql
 
 import (
 	"database/sql"
-	"user-service/internal/config"
+
+	"github.com/botscubes/user-service/internal/config"
 
 	_ "github.com/lib/pq"
 )

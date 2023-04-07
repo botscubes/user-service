@@ -2,7 +2,8 @@ package test
 
 import (
 	"testing"
-	"user-service/internal/config"
+
+	"github.com/botscubes/user-service/internal/config"
 )
 
 func TestGetConfig(t *testing.T) {
