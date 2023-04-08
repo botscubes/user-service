@@ -1,3 +1,7 @@
+all: run
+
+
+run: go run cmd/server.go 
 
 
 
