@@ -13,10 +13,6 @@ type Server struct {
 	conf *config.Config
 }
 
-func (s *Server) bindHanlers() {
-	bind(s)
-}
-
 func NewServer() *Server {
 	var err error
 	s := new(Server)
