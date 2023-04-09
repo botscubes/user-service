@@ -5,6 +5,7 @@ import (
 	"strings"
 	"unicode/utf8"
 
+	"github.com/botscubes/user-service/internal/errors"
 	"github.com/botscubes/user-service/pkg/service_error"
 )
 
@@ -25,68 +26,68 @@ import (
 
 // User struct.
 type User struct {
-	login    string
-	password string
+	Login    string `json:"login"`
+	Password string `json:"password"`
 }
 
 func (u *User) GetLogin() string {
-	return u.login
+	return u.Login
 }
 
 func (u *User) SetLogin(login string) *service_error.ServiceError {
 	login = strings.TrimSpace(login)
 	if login == "" {
-		return ErrEmptyLogin
+		return errors.ErrEmptyLogin
 	}
 
 	var len = utf8.RuneCountInString(login)
 	if len < 6 {
-		return ErrShortLogin
+		return errors.ErrShortLogin
 	}
 	if len > 30 {
-		return ErrLongLogin
+		return errors.ErrLongLogin
 	}
 	if matched, _ := regexp.MatchString(`^[A-Za-z0-9_]*`, login); !matched {
-		return ErrIncorrectLogin
+		return errors.ErrIncorrectLogin
 	}
-	u.login = login
-	return NoError
+	u.Login = login
+	return errors.NoError
 }
 
 func (u *User) GetPassword() string {
-	return u.password
+	return u.Password
 }
 
 func (u *User) SetPassword(password string) *service_error.ServiceError {
 	password = strings.TrimSpace(password)
 	if password == "" {
-		return ErrEmptyPassword
+		return errors.ErrEmptyPassword
 	}
 
 	var len = utf8.RuneCountInString(password)
 	if len < 6 {
-		return ErrShortPassword
+		return errors.ErrShortPassword
 	}
 	if len > 50 {
-		return ErrLongPassword
+		return errors.ErrLongPassword
 	}
 	if matched, _ := regexp.MatchString(`^[A-Za-z0-9_&?!@#$%^+=*]*`, password); !matched {
-		return ErrIncorrectPassword
+		return errors.ErrIncorrectPassword
 	}
-	u.password = password
-	return NoError
+	u.Password = password
+	return errors.NoError
 }
 
-func New(login string, password string) (*User, *service_error.ServiceError) {
+func NewUser(login string, password string) (*User, *service_error.ServiceError) {
 	var user *User = new(User)
 
-	if err := user.SetLogin(login); err != NoError {
+	if err := user.SetLogin(login); err != errors.NoError {
 		return nil, err
 	}
-	if err := user.SetPassword(password); err != NoError {
+	if err := user.SetPassword(password); err != errors.NoError {
 		return nil, err
 	}
 
-	return user, NoError
+	return user, errors.NoError
 
 }

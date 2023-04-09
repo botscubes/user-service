@@ -1,13 +1,15 @@
 // Error list.
-package user
+package errors
 
 import (
 	err "github.com/botscubes/user-service/pkg/service_error"
 )
 
+// No error. Error code 0.
+var NoError = err.New(0, "user-service: no error")
+
+// User struct errors.
 var (
-	// No error. Error code 0.
-	NoError = err.New(0, "user-service: no error")
 
 	// Empty login. Error code 1.
 	ErrEmptyLogin = err.New(1, "user-service: empty login")
@@ -32,4 +34,9 @@ var (
 
 	// Password is incorrect. Error code 8.
 	ErrIncorrectPassword = err.New(8, "user-service: password is incorrect")
+)
+
+// Server errors.
+var (
+	ErrBadRequest = err.New(1400, "user-service: bad request")
 )
