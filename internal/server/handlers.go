@@ -10,6 +10,7 @@ import (
 )
 
 func (s *Server) bindHanlers() {
+
 	s.echo.POST("/signin", func(c echo.Context) error {
 		var u *user.User = new(user.User)
 		if err := c.Bind(u); err != nil {
