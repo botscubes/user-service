@@ -9,13 +9,13 @@ import (
 
 // Implementation of the TokenStorage interface for Redis.
 type RedisTokenStorage struct {
-	redis *redis.Client
 	ctx   context.Context
+	redis *redis.Client
 }
 
 // Get redis token storage.
-func NewRedisTokenStorage(redis *redis.Client, ctx context.Context) *RedisTokenStorage {
-	return &RedisTokenStorage{redis, ctx}
+func NewRedisTokenStorage(ctx context.Context, redis *redis.Client) *RedisTokenStorage {
+	return &RedisTokenStorage{ctx, redis}
 }
 
 // Seve token in Redis.
@@ -43,6 +43,7 @@ func (r *RedisTokenStorage) CheckToken(token string) (bool, error) {
 
 }
 
+// Close redis client.
 func (r *RedisTokenStorage) Close() error {
 	return r.redis.Close()
 }

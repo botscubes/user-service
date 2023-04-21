@@ -11,7 +11,7 @@ import (
 
 // New Postgresql pool.
 // Сlose after use.
-func NewPool(c *config.DBConfig, context context.Context) (*pgxpool.Pool, error) {
+func NewPool(context context.Context, c *config.DBConfig) (*pgxpool.Pool, error) {
 	connURL := fmt.Sprintf("postgres://%s:%s@%s:%s/%s",
 		c.User,
 		c.Password,
