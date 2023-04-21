@@ -10,12 +10,14 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+// Server for user-service.
 type Server struct {
 	echo         *echo.Echo
 	conf         *config.Config
 	tokenStorage token_storage.TokenStorage
 }
 
+// Create user-service server.
 func NewServer() *Server {
 	var err error
 	s := new(Server)
@@ -30,17 +32,14 @@ func NewServer() *Server {
 	s.tokenStorage = token_storage.NewRedisTokenStorage(redis, &ctx)
 
 	s.echo = echo.New()
-
-	// s.echo.GET("/", func(c echo.Context) error {
-	// 	return c.String(http.StatusOK, "Hello, World!")
-	// })
 	s.bindHanlers()
 
 	return s
 
 }
 
+// Run user-service server.
 func (s *Server) Run() {
-	//s.echo.Logger.Fatal(s.echo.Start(":1323"))
-	s.tokenStorage.SaveToken("test", 60)
+	s.echo.Logger.Fatal(s.echo.Start(":1323"))
+
 }

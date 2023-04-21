@@ -9,6 +9,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+// Handlers for server. Handlers are implemented using a closure.
 func (s *Server) bindHanlers() {
 
 	s.echo.POST("/signin", func(c echo.Context) error {
