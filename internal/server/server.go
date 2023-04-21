@@ -29,7 +29,7 @@ func NewServer() *Server {
 	redis := redis.GetClient(&s.conf.Redis)
 	ctx := context.Background()
 
-	s.tokenStorage = token_storage.NewRedisTokenStorage(redis, &ctx)
+	s.tokenStorage = token_storage.NewRedisTokenStorage(redis, ctx)
 
 	s.echo = echo.New()
 	s.bindHanlers()
@@ -40,6 +40,14 @@ func NewServer() *Server {
 
 // Run user-service server.
 func (s *Server) Run() {
+	defer s.CloseConnectons()
+
 	s.echo.Logger.Fatal(s.echo.Start(":1323"))
+
+}
+
+// Close all database connections.
+func (s *Server) CloseConnectons() {
+	s.tokenStorage.Close()
 
 }

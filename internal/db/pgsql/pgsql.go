@@ -1,22 +1,28 @@
 package pgsql
 
 import (
-	"database/sql"
+	"context"
+	"fmt"
 
 	"github.com/botscubes/user-service/internal/config"
 
-	_ "github.com/lib/pq"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-// Open Postgresql connection.
+// New Postgresql pool.
 // Сlose after use.
-func Open(c *config.DBConfig) (*sql.DB, error) {
-	connStr := "user=" + c.User +
-		" password=" + c.Password +
-		" dbname=" + c.DBname +
-		" port=" + c.Port +
-		" host=" + c.Host
-	db, err := sql.Open("postgres", connStr)
+func NewPool(c *config.DBConfig, context context.Context) (*pgxpool.Pool, error) {
+	connURL := fmt.Sprintf("postgres://%s:%s@%s:%s/%s",
+		c.User,
+		c.Password,
+		c.Host,
+		c.Port,
+		c.DBname,
+	)
+	pool, err := pgxpool.New(context, connURL)
+	if err != nil {
+		return nil, err
+	}
 
-	return db, err
+	return pool, err
 }
