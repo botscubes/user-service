@@ -19,11 +19,13 @@ type DBConfig struct {
 
 // Config for Server.
 type ServerConfig struct {
+	Salt   string `yaml:"salt"`
+	JWTKey string `yaml:"jwtkey"`
 }
 
 // Config for App.
 type Config struct {
-	Redis RedisConfig `yaml:"redis"`
-	DB    DBConfig    `yaml:"db"`
-	ServerConfig
+	Redis  RedisConfig  `yaml:"redis"`
+	DB     DBConfig     `yaml:"db"`
+	Server ServerConfig `yaml:"server"`
 }

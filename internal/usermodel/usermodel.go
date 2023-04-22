@@ -21,7 +21,13 @@ func (um *UserModel) SaveUser(u *user.User) error {
 }
 
 // Check password by Login.
-func (um *UserModel) CheckPasswordByLogin(login string, password string) (bool, error) {
+func (um *UserModel) GetIdAndPasswordByLogin(login string) (int, string, error) {
+
+	return 0, "", nil
+}
+
+// Сheck the existence of the login in the database.
+func (um *UserModel) LoginExists(login string) (bool, error) {
 
 	return false, nil
 }

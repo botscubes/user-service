@@ -74,7 +74,7 @@ func (u *User) SetPassword(password string) *service_error.ServiceError {
 	if matched, _ := regexp.MatchString(`^[A-Za-z0-9_&?!@#$%^+=*]*`, password); !matched {
 		return errors.ErrIncorrectPassword
 	}
-	u.Password = password
+
 	return errors.NoError
 }
 

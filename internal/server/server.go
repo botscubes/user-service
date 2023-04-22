@@ -45,7 +45,7 @@ func NewServer() *Server {
 	s.userModel = usermodel.New(s.pgpool)
 
 	s.echo = echo.New()
-	s.bindHanlers()
+	s.bindHandlers()
 
 	return s
 
