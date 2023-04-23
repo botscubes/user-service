@@ -23,6 +23,9 @@ func GetIdFromToken(tokenString string, key string) (int, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &UserClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(key), nil
 	})
+	if err != nil {
+		return 0, err
+	}
 
 	if claims, ok := token.Claims.(*UserClaims); ok && token.Valid {
 		return claims.Id, nil
