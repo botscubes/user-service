@@ -33,11 +33,11 @@ func (r *RedisTokenStorage) DeleteToken(token string) error {
 // Check for token existence in redis.
 func (r *RedisTokenStorage) CheckToken(token string) (bool, error) {
 	_, err := r.redis.Get(r.ctx, token).Result()
-	if err == nil {
-		return false, err
-	}
 	if err == redis.Nil {
 		return false, nil
+	}
+	if err != nil {
+		return false, err
 	}
 	return true, nil
 
