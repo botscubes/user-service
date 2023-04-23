@@ -1,6 +1,8 @@
 package jwt
 
 import (
+	"errors"
+
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -30,5 +32,6 @@ func GetIdFromToken(tokenString string, key string) (int, error) {
 	if claims, ok := token.Claims.(*UserClaims); ok && token.Valid {
 		return claims.Id, nil
 	}
-	return 0, err
+
+	return 0, errors.New("token is not valid")
 }
