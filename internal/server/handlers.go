@@ -31,6 +31,7 @@ func (s *Server) bindHandlers() {
 		if service_err != errors.NoError {
 			return c.JSON(http.StatusOK, service_err)
 		}
+
 		if exists, err := s.userModel.LoginExists(u.Login); err != nil {
 			// TODO: log the error.
 			log.Fatal(err) // replace
@@ -38,6 +39,7 @@ func (s *Server) bindHandlers() {
 		} else if exists {
 			return c.JSON(http.StatusOK, errors.ErrLoginExists)
 		}
+
 		var err error = nil
 		u.Password, err = password_hash.GetPasswordHash(u.Password, s.conf.Server.Salt)
 		if err != nil {
@@ -45,6 +47,7 @@ func (s *Server) bindHandlers() {
 			log.Fatal(err) // replace
 			return c.JSON(http.StatusInternalServerError, errors.ErrInternalServerError)
 		}
+
 		err = s.userModel.SaveUser(u)
 		if err != nil {
 			// TODO: log the error.
@@ -60,10 +63,12 @@ func (s *Server) bindHandlers() {
 		if err := c.Bind(u); err != nil {
 			return c.JSON(http.StatusBadRequest, errors.ErrBadRequest)
 		}
+
 		u, service_err := user.NewUser(u.Login, u.Password)
 		if service_err != errors.NoError {
 			return c.JSON(http.StatusOK, service_err)
 		}
+
 		id, password, err := s.userModel.GetIdAndPasswordByLogin(u.Login)
 		if err != nil {
 			// TODO: log the error.
@@ -73,6 +78,7 @@ func (s *Server) bindHandlers() {
 		if id == 0 {
 			return c.JSON(http.StatusInternalServerError, errors.ErrLoginNotExists)
 		}
+
 		if !password_hash.CheckPasswordHash(u.Password, password, s.conf.Server.Salt) {
 			return c.JSON(http.StatusOK, errors.ErrPasswordIsNotEqual)
 		}
@@ -83,6 +89,7 @@ func (s *Server) bindHandlers() {
 			log.Fatal(err) // replace
 			return c.JSON(http.StatusInternalServerError, errors.ErrInternalServerError)
 		}
+
 		err = s.tokenStorage.SaveToken(token, s.conf.Server.TokenLifetime)
 		if err != nil {
 			// TODO: log the error.
@@ -94,12 +101,18 @@ func (s *Server) bindHandlers() {
 	})
 
 	s.echo.POST("/signout", func(c echo.Context) error {
-		token := ""
+		token := c.Get("token").(string)
 		if token == "" {
 			return c.JSON(http.StatusUnauthorized, errors.ErrUnauthorized)
 		}
-		s.tokenStorage.DeleteToken(token)
+		err := s.tokenStorage.DeleteToken(token)
+		if err != nil {
+			// TODO: log the error.
+			log.Fatal(err) // replace
+			return c.JSON(http.StatusInternalServerError, errors.ErrInternalServerError)
+		}
+
 		return c.JSON(http.StatusUnauthorized, errors.NoError)
 
-	})
+	}, JWT(s.conf.Server.JWTKey, s.tokenStorage))
 }

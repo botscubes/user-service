@@ -2,12 +2,17 @@ package server
 
 import (
 	"context"
+	"net/http"
+
 	"log"
+	"strings"
 
 	"github.com/botscubes/user-service/internal/config"
 	"github.com/botscubes/user-service/internal/db/pgsql"
 	"github.com/botscubes/user-service/internal/db/redis"
+	"github.com/botscubes/user-service/internal/errors"
 	"github.com/botscubes/user-service/internal/usermodel"
+	"github.com/botscubes/user-service/pkg/jwt"
 	"github.com/botscubes/user-service/pkg/token_storage"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/labstack/echo/v4"
@@ -20,6 +25,37 @@ type Server struct {
 	tokenStorage token_storage.TokenStorage
 	pgpool       *pgxpool.Pool
 	userModel    *usermodel.UserModel
+}
+
+func JWT(JWTKey string, tokenStorage token_storage.TokenStorage) func(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			tmp := c.Request().Header.Get("Authorization")
+			token := strings.TrimSpace(strings.TrimPrefix(tmp, "Bearer"))
+			exists, err := tokenStorage.CheckToken(token)
+			if err != nil {
+				// TODO: log error
+				log.Fatalln(err) //replace
+				return c.JSON(http.StatusInternalServerError, errors.ErrInternalServerError)
+			}
+			if !exists {
+				return c.JSON(http.StatusUnauthorized, errors.ErrUnauthorized)
+			}
+			id, err := jwt.GetIdFromToken(token, JWTKey)
+			c.Set("user_id", 0)
+			c.Set("token", "")
+			if err != nil {
+				// TODO: log error
+				log.Fatalln(err) // replace
+				return c.JSON(http.StatusInternalServerError, errors.ErrInternalServerError)
+
+			} else {
+				c.Set("user_id", id)
+				c.Set("token", token)
+			}
+			return next(c)
+		}
+	}
 }
 
 // Create user-service server.
@@ -45,8 +81,10 @@ func NewServer() *Server {
 	s.userModel = usermodel.New(ctx, s.pgpool)
 
 	s.echo = echo.New()
+
 	s.bindHandlers()
 
+	//s.echo.Use(JWT(s.conf.Server.JWTKey, s.tokenStorage))
 	return s
 
 }
