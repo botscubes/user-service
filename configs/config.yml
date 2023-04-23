@@ -17,4 +17,5 @@ redis:
 server:
   salt: testsalt
   jwtkey: testkey
+  tokenLifetime: 300 #sec
   

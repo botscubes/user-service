@@ -42,7 +42,7 @@ func NewServer() *Server {
 		log.Fatal(err)
 	}
 
-	s.userModel = usermodel.New(s.pgpool)
+	s.userModel = usermodel.New(ctx, s.pgpool)
 
 	s.echo = echo.New()
 	s.bindHandlers()

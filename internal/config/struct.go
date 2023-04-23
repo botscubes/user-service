@@ -19,8 +19,9 @@ type DBConfig struct {
 
 // Config for Server.
 type ServerConfig struct {
-	Salt   string `yaml:"salt"`
-	JWTKey string `yaml:"jwtkey"`
+	Salt          string `yaml:"salt"`
+	JWTKey        string `yaml:"jwtkey"`
+	TokenLifetime int    `yaml:"tokenLifetime"`
 }
 
 // Config for App.

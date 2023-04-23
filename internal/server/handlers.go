@@ -1,6 +1,7 @@
 package server
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/botscubes/user-service/internal/errors"
@@ -32,6 +33,7 @@ func (s *Server) bindHandlers() {
 		}
 		if exists, err := s.userModel.LoginExists(u.Login); err != nil {
 			// TODO: log the error.
+			log.Fatal(err) // replace
 			return c.JSON(http.StatusInternalServerError, errors.ErrInternalServerError)
 		} else if exists {
 			return c.JSON(http.StatusOK, errors.ErrLoginExists)
@@ -40,9 +42,15 @@ func (s *Server) bindHandlers() {
 		u.Password, err = password_hash.GetPasswordHash(u.Password, s.conf.Server.Salt)
 		if err != nil {
 			// TODO: log the error.
+			log.Fatal(err) // replace
 			return c.JSON(http.StatusInternalServerError, errors.ErrInternalServerError)
 		}
-		s.userModel.SaveUser(u)
+		err = s.userModel.SaveUser(u)
+		if err != nil {
+			// TODO: log the error.
+			log.Fatal(err) // replace
+			return c.JSON(http.StatusInternalServerError, errors.ErrInternalServerError)
+		}
 
 		return c.JSON(http.StatusOK, errors.NoError)
 	})
@@ -59,6 +67,7 @@ func (s *Server) bindHandlers() {
 		id, password, err := s.userModel.GetIdAndPasswordByLogin(u.Login)
 		if err != nil {
 			// TODO: log the error.
+			log.Fatal(err) // replace
 			return c.JSON(http.StatusInternalServerError, errors.ErrInternalServerError)
 		}
 		if id == 0 {
@@ -71,6 +80,13 @@ func (s *Server) bindHandlers() {
 		token, err := jwt.GenerateToken(id, s.conf.Server.JWTKey)
 		if err != nil {
 			// TODO: log the error.
+			log.Fatal(err) // replace
+			return c.JSON(http.StatusInternalServerError, errors.ErrInternalServerError)
+		}
+		err = s.tokenStorage.SaveToken(token, s.conf.Server.TokenLifetime)
+		if err != nil {
+			// TODO: log the error.
+			log.Fatal(err) // replace
 			return c.JSON(http.StatusInternalServerError, errors.ErrInternalServerError)
 		}
 

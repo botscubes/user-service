@@ -1,6 +1,8 @@
 package usermodel
 
 import (
+	"context"
+
 	"github.com/botscubes/user-service/internal/user"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -8,28 +10,66 @@ import (
 // Model for User.
 type UserModel struct {
 	pool *pgxpool.Pool
+	ctx  context.Context
 }
 
-func New(p *pgxpool.Pool) *UserModel {
-	return &UserModel{p}
+func New(ctx context.Context, p *pgxpool.Pool) *UserModel {
+	return &UserModel{p, ctx}
 }
 
 // Save the user to the database.
 func (um *UserModel) SaveUser(u *user.User) error {
+	conn, err := um.pool.Acquire(um.ctx)
+	if err != nil {
+		return err
+	}
+	defer conn.Release()
+	_, err = conn.Exec(um.ctx, "INSERT INTO account (login, password) VALUES ($1, $2)", u.Login, u.Password)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
 
-// Check password by Login.
+// Get Id and password by Login.
 func (um *UserModel) GetIdAndPasswordByLogin(login string) (int, string, error) {
+	conn, err := um.pool.Acquire(um.ctx)
+	if err != nil {
+		return 0, "", err
+	}
+	defer conn.Release()
 
-	return 0, "", nil
+	var id int
+	var password string
+	err = conn.QueryRow(
+		um.ctx,
+		"SELECT id, password FROM account WHERE login = $1", login,
+	).Scan(&id, &password)
+	if err != nil {
+		return 0, "", err
+	}
+	return id, password, nil
 }
 
 // Сheck the existence of the login in the database.
 func (um *UserModel) LoginExists(login string) (bool, error) {
+	conn, err := um.pool.Acquire(um.ctx)
+	if err != nil {
+		return false, err
+	}
+	defer conn.Release()
 
-	return false, nil
+	var exists bool
+	err = conn.QueryRow(
+		um.ctx,
+		"SELECT EXISTS(SELECT 1 FROM account WHERE login = $1)", login,
+	).Scan(&exists)
+	if err != nil {
+		return false, err
+	}
+
+	return exists, nil
 }
 
 // Delete user from database.

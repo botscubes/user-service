@@ -29,7 +29,8 @@ var (
 	// Login exists in the database. Error code ...
 	ErrLoginExists = err.New(14, "user-service: login exists")
 
-	ErrLoginNotExists = err.New(14, "user-service: login exists")
+	// Login not exists in the database. Error code ...
+	ErrLoginNotExists = err.New(15, "user-service: login not exists")
 
 	// Empty password. Error code ...
 	ErrEmptyPassword = err.New(20, "user-service: empty password")
