@@ -9,30 +9,29 @@ import (
 
 // Implementation of the TokenStorage interface for Redis.
 type RedisTokenStorage struct {
-	ctx   context.Context
 	redis *redis.Client
 }
 
 // Get redis token storage.
-func NewRedisTokenStorage(ctx context.Context, redis *redis.Client) *RedisTokenStorage {
-	return &RedisTokenStorage{ctx, redis}
+func NewRedisTokenStorage(redis *redis.Client) *RedisTokenStorage {
+	return &RedisTokenStorage{redis}
 }
 
 // Seve token in Redis.
-func (r *RedisTokenStorage) SaveToken(token string, lifeTimeInSec int) error {
-	err := r.redis.Set(r.ctx, token, 0, time.Duration(lifeTimeInSec)*time.Second).Err()
+func (r *RedisTokenStorage) SaveToken(ctx context.Context, token string, lifeTimeInSec int) error {
+	err := r.redis.Set(ctx, token, 0, time.Duration(lifeTimeInSec)*time.Second).Err()
 	return err
 }
 
 // Delete token in Redis.
-func (r *RedisTokenStorage) DeleteToken(token string) error {
-	err := r.redis.Del(r.ctx, token).Err()
+func (r *RedisTokenStorage) DeleteToken(ctx context.Context, token string) error {
+	err := r.redis.Del(ctx, token).Err()
 	return err
 }
 
 // Check for token existence in redis.
-func (r *RedisTokenStorage) CheckToken(token string) (bool, error) {
-	_, err := r.redis.Get(r.ctx, token).Result()
+func (r *RedisTokenStorage) CheckToken(ctx context.Context, token string) (bool, error) {
+	_, err := r.redis.Get(ctx, token).Result()
 	if err == redis.Nil {
 		return false, nil
 	}

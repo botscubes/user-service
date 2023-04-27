@@ -32,7 +32,7 @@ func JWT(JWTKey string, tokenStorage token_storage.TokenStorage) func(next echo.
 		return func(c echo.Context) error {
 			tmp := c.Request().Header.Get("Authorization")
 			token := strings.TrimSpace(strings.TrimPrefix(tmp, "Bearer"))
-			exists, err := tokenStorage.CheckToken(token)
+			exists, err := tokenStorage.CheckToken(context.Background(), token)
 			if err != nil {
 				// TODO: log error
 				log.Fatalln(err) //replace
@@ -72,7 +72,7 @@ func NewServer() *Server {
 	ctx := context.Background()
 	redis := redis.GetClient(&s.conf.Redis)
 
-	s.tokenStorage = token_storage.NewRedisTokenStorage(ctx, redis)
+	s.tokenStorage = token_storage.NewRedisTokenStorage(redis)
 	s.pgpool, err = pgsql.NewPool(ctx, &s.conf.DB)
 	if err != nil {
 		log.Fatal(err)

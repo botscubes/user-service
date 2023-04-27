@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"log"
 	"net/http"
 
@@ -90,7 +91,7 @@ func (s *Server) bindHandlers() {
 			return c.JSON(http.StatusInternalServerError, errors.ErrInternalServerError)
 		}
 
-		err = s.tokenStorage.SaveToken(token, s.conf.Server.TokenLifetime)
+		err = s.tokenStorage.SaveToken(context.Background(), token, s.conf.Server.TokenLifetime)
 		if err != nil {
 			// TODO: log the error.
 			log.Fatal(err) // replace
@@ -105,7 +106,7 @@ func (s *Server) bindHandlers() {
 		if token == "" {
 			return c.JSON(http.StatusUnauthorized, errors.ErrUnauthorized)
 		}
-		err := s.tokenStorage.DeleteToken(token)
+		err := s.tokenStorage.DeleteToken(context.Background(), token)
 		if err != nil {
 			// TODO: log the error.
 			log.Fatal(err) // replace
