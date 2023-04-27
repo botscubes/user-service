@@ -10,21 +10,20 @@ import (
 // Model for User.
 type UserModel struct {
 	pool *pgxpool.Pool
-	ctx  context.Context
 }
 
 func New(ctx context.Context, p *pgxpool.Pool) *UserModel {
-	return &UserModel{p, ctx}
+	return &UserModel{p}
 }
 
 // Save the user to the database.
-func (um *UserModel) SaveUser(u *user.User) error {
-	conn, err := um.pool.Acquire(um.ctx)
+func (um *UserModel) SaveUser(ctx context.Context, u *user.User) error {
+	conn, err := um.pool.Acquire(ctx)
 	if err != nil {
 		return err
 	}
 	defer conn.Release()
-	_, err = conn.Exec(um.ctx, "INSERT INTO account (login, password) VALUES ($1, $2)", u.Login, u.Password)
+	_, err = conn.Exec(ctx, "INSERT INTO account (login, password) VALUES ($1, $2)", u.Login, u.Password)
 	if err != nil {
 		return err
 	}
@@ -33,8 +32,8 @@ func (um *UserModel) SaveUser(u *user.User) error {
 }
 
 // Get Id and password by Login.
-func (um *UserModel) GetIdAndPasswordByLogin(login string) (int, string, error) {
-	conn, err := um.pool.Acquire(um.ctx)
+func (um *UserModel) GetIdAndPasswordByLogin(ctx context.Context, login string) (int, string, error) {
+	conn, err := um.pool.Acquire(ctx)
 	if err != nil {
 		return 0, "", err
 	}
@@ -43,7 +42,7 @@ func (um *UserModel) GetIdAndPasswordByLogin(login string) (int, string, error) 
 	var id int
 	var password string
 	err = conn.QueryRow(
-		um.ctx,
+		ctx,
 		"SELECT id, password FROM account WHERE login = $1", login,
 	).Scan(&id, &password)
 	if err != nil {
@@ -53,8 +52,8 @@ func (um *UserModel) GetIdAndPasswordByLogin(login string) (int, string, error) 
 }
 
 // Сheck the existence of the login in the database.
-func (um *UserModel) LoginExists(login string) (bool, error) {
-	conn, err := um.pool.Acquire(um.ctx)
+func (um *UserModel) LoginExists(ctx context.Context, login string) (bool, error) {
+	conn, err := um.pool.Acquire(ctx)
 	if err != nil {
 		return false, err
 	}
@@ -62,7 +61,7 @@ func (um *UserModel) LoginExists(login string) (bool, error) {
 
 	var exists bool
 	err = conn.QueryRow(
-		um.ctx,
+		ctx,
 		"SELECT EXISTS(SELECT 1 FROM account WHERE login = $1)", login,
 	).Scan(&exists)
 	if err != nil {

@@ -33,7 +33,7 @@ func (s *Server) bindHandlers() {
 			return c.JSON(http.StatusOK, service_err)
 		}
 
-		if exists, err := s.userModel.LoginExists(u.Login); err != nil {
+		if exists, err := s.userModel.LoginExists(context.Background(), u.Login); err != nil {
 			// TODO: log the error.
 			log.Fatal(err) // replace
 			return c.JSON(http.StatusInternalServerError, errors.ErrInternalServerError)
@@ -49,7 +49,7 @@ func (s *Server) bindHandlers() {
 			return c.JSON(http.StatusInternalServerError, errors.ErrInternalServerError)
 		}
 
-		err = s.userModel.SaveUser(u)
+		err = s.userModel.SaveUser(context.Background(), u)
 		if err != nil {
 			// TODO: log the error.
 			log.Fatal(err) // replace
@@ -70,7 +70,7 @@ func (s *Server) bindHandlers() {
 			return c.JSON(http.StatusOK, service_err)
 		}
 
-		id, password, err := s.userModel.GetIdAndPasswordByLogin(u.Login)
+		id, password, err := s.userModel.GetIdAndPasswordByLogin(context.Background(), u.Login)
 		if err != nil {
 			// TODO: log the error.
 			log.Fatal(err) // replace
