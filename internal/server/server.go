@@ -69,16 +69,15 @@ func NewServer() *Server {
 		log.Fatal(err)
 	}
 
-	ctx := context.Background()
 	redis := redis.GetClient(&s.conf.Redis)
 
 	s.tokenStorage = token_storage.NewRedisTokenStorage(redis)
-	s.pgpool, err = pgsql.NewPool(ctx, &s.conf.DB)
+	s.pgpool, err = pgsql.NewPool(context.Background(), &s.conf.DB)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	s.userModel = usermodel.New(ctx, s.pgpool)
+	s.userModel = usermodel.New(context.Background(), s.pgpool)
 
 	s.echo = echo.New()
 
