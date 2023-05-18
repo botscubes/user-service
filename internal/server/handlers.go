@@ -22,7 +22,7 @@ type ResponseToken struct {
 func (s *Server) bindHandlers() {
 	// TODO: log errors
 
-	s.echo.POST("/signup", func(c echo.Context) error {
+	s.echo.POST("/api/users/signup", func(c echo.Context) error {
 		var u *user.User = new(user.User)
 		if err := c.Bind(u); err != nil {
 			return c.JSON(http.StatusBadRequest, errors.ErrBadRequest)
@@ -59,7 +59,7 @@ func (s *Server) bindHandlers() {
 		return c.JSON(http.StatusOK, errors.NoError)
 	})
 
-	s.echo.POST("/signin", func(c echo.Context) error {
+	s.echo.POST("/api/users/signin", func(c echo.Context) error {
 		var u *user.User = new(user.User)
 		if err := c.Bind(u); err != nil {
 			return c.JSON(http.StatusBadRequest, errors.ErrBadRequest)
@@ -101,7 +101,7 @@ func (s *Server) bindHandlers() {
 		return c.JSON(http.StatusOK, ResponseToken{token, errors.NoError})
 	})
 
-	s.echo.POST("/signout", func(c echo.Context) error {
+	s.echo.POST("/api/users/signout", func(c echo.Context) error {
 		token := c.Get("token").(string)
 		if token == "" {
 			return c.JSON(http.StatusUnauthorized, errors.ErrUnauthorized)
