@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/botscubes/user-service/internal/errors"
 	"github.com/botscubes/user-service/internal/user"
@@ -83,15 +84,25 @@ func (s *Server) bindHandlers() {
 		if !password_hash.CheckPasswordHash(u.Password, password, s.conf.Server.Salt) {
 			return c.JSON(http.StatusOK, errors.ErrPasswordIsNotEqual)
 		}
-
-		token, err := jwt.GenerateToken(id, s.conf.Server.JWTKey)
+		claims := jwt.NewUserClaims(
+			id,
+			time.Duration(s.conf.Server.TokenLifeTime)*time.Second,
+		)
+		token, err := jwt.GenerateToken(
+			claims,
+			s.conf.Server.JWTKey,
+		)
 		if err != nil {
 			// TODO: log the error.
 			log.Fatal(err) // replace
 			return c.JSON(http.StatusInternalServerError, errors.ErrInternalServerError)
 		}
 
-		err = s.tokenStorage.SaveToken(context.Background(), token, s.conf.Server.TokenLifetime)
+		err = s.tokenStorage.SaveToken(
+			context.Background(),
+			token,
+			claims.GetLifeDuration(),
+		)
 		if err != nil {
 			// TODO: log the error.
 			log.Fatal(err) // replace

@@ -18,8 +18,12 @@ func NewRedisTokenStorage(redis *redis.Client) *RedisTokenStorage {
 }
 
 // Seve token in Redis.
-func (r *RedisTokenStorage) SaveToken(ctx context.Context, token string, lifeTimeInSec int) error {
-	err := r.redis.Set(ctx, token, 0, time.Duration(lifeTimeInSec)*time.Second).Err()
+func (r *RedisTokenStorage) SaveToken(
+	ctx context.Context,
+	token string,
+	lifeDuration time.Duration,
+) error {
+	err := r.redis.Set(ctx, token, 0, lifeDuration).Err()
 	return err
 }
 

@@ -2,8 +2,8 @@ package jwt
 
 import (
 	"errors"
-
 	"github.com/golang-jwt/jwt/v5"
+	"time"
 )
 
 type UserClaims struct {
@@ -11,11 +11,24 @@ type UserClaims struct {
 	jwt.RegisteredClaims
 }
 
-func GenerateToken(id int, key string) (string, error) {
+func NewUserClaims(id int, lifeDuration time.Duration) UserClaims {
 	claims := UserClaims{
 		id,
-		jwt.RegisteredClaims{},
+		jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(
+				time.Now().Add(lifeDuration),
+			),
+			IssuedAt: jwt.NewNumericDate(time.Now()),
+		},
 	}
+	return claims
+}
+
+func (uc *UserClaims) GetLifeDuration() time.Duration {
+	return uc.ExpiresAt.Sub(uc.IssuedAt.Time)
+}
+
+func GenerateToken(claims UserClaims, key string) (string, error) {
 	t := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	s, err := t.SignedString([]byte(key))
 	return s, err
