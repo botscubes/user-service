@@ -3,6 +3,10 @@ package server
 import (
 	"context"
 	"net/http"
+	"os"
+	"os/signal"
+
+	"time"
 
 	"log"
 	"strings"
@@ -92,8 +96,20 @@ func NewServer() *Server {
 func (s *Server) Run() {
 	defer s.CloseConnectons()
 
-	s.echo.Logger.Fatal(s.echo.Start(":1323"))
+	go func() {
+		if err := s.echo.Start(":1323"); err != nil && err != http.ErrServerClosed {
+			s.echo.Logger.Fatal("shutting down the server")
+		}
+	}()
 
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, os.Interrupt)
+	<-quit
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	if err := s.echo.Shutdown(ctx); err != nil {
+		s.echo.Logger.Fatal(err)
+	}
 }
 
 // Close all database connections.
