@@ -34,7 +34,7 @@ func (s *Server) bindHandlers() {
 
 		if exists, err := s.userModel.LoginExists(context.Background(), u.Login); err != nil {
 
-			s.echo.Logger.Fatal(err)
+			s.echo.Logger.Error(err)
 			return c.JSON(http.StatusInternalServerError, errors.ErrInternalServerError)
 		} else if exists {
 			return c.JSON(http.StatusOK, errors.ErrLoginExists)
@@ -43,13 +43,13 @@ func (s *Server) bindHandlers() {
 		var err error = nil
 		u.Password, err = password_hash.GetPasswordHash(u.Password, s.conf.Server.Salt)
 		if err != nil {
-			s.echo.Logger.Fatal(err)
+			s.echo.Logger.Error(err)
 			return c.JSON(http.StatusInternalServerError, errors.ErrInternalServerError)
 		}
 
 		err = s.userModel.SaveUser(context.Background(), u)
 		if err != nil {
-			s.echo.Logger.Fatal(err)
+			s.echo.Logger.Error(err)
 			return c.JSON(http.StatusInternalServerError, errors.ErrInternalServerError)
 		}
 
@@ -70,7 +70,7 @@ func (s *Server) bindHandlers() {
 		id, password, err := s.userModel.GetIdAndPasswordByLogin(context.Background(), u.Login)
 		if err != nil {
 
-			s.echo.Logger.Fatal(err)
+			s.echo.Logger.Error(err)
 			return c.JSON(http.StatusInternalServerError, errors.ErrInternalServerError)
 		}
 		if id == 0 {
@@ -89,7 +89,7 @@ func (s *Server) bindHandlers() {
 			s.conf.Server.JWTKey,
 		)
 		if err != nil {
-			s.echo.Logger.Fatal(err)
+			s.echo.Logger.Error(err)
 			return c.JSON(http.StatusInternalServerError, errors.ErrInternalServerError)
 		}
 
@@ -100,7 +100,7 @@ func (s *Server) bindHandlers() {
 		)
 		if err != nil {
 
-			s.echo.Logger.Fatal(err)
+			s.echo.Logger.Error(err)
 			return c.JSON(http.StatusInternalServerError, errors.ErrInternalServerError)
 		}
 
@@ -114,7 +114,7 @@ func (s *Server) bindHandlers() {
 		}
 		err := s.tokenStorage.DeleteToken(context.Background(), token)
 		if err != nil {
-			s.echo.Logger.Fatal(err)
+			s.echo.Logger.Error(err)
 			return c.JSON(http.StatusInternalServerError, errors.ErrInternalServerError)
 		}
 

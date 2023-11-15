@@ -41,7 +41,7 @@ func JWT(
 			token := strings.TrimSpace(strings.TrimPrefix(tmp, "Bearer"))
 			exists, err := tokenStorage.CheckToken(context.Background(), token)
 			if err != nil {
-				logger.Fatal(err)
+				logger.Error(err)
 				return c.JSON(http.StatusInternalServerError, errors.ErrInternalServerError)
 			}
 			if !exists {
@@ -51,7 +51,7 @@ func JWT(
 			c.Set("user_id", 0)
 			c.Set("token", "")
 			if err != nil {
-				logger.Fatal(err)
+				logger.Error(err)
 				return c.JSON(http.StatusInternalServerError, errors.ErrInternalServerError)
 
 			} else {
@@ -110,6 +110,8 @@ func (s *Server) Run() {
 	if err := s.echo.Shutdown(ctx); err != nil {
 		s.echo.Logger.Fatal(err)
 	}
+
+	println("Done")
 }
 
 // Close all database connections.
