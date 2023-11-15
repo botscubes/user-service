@@ -2,7 +2,6 @@ package server
 
 import (
 	"context"
-	"log"
 	"net/http"
 	"time"
 
@@ -21,7 +20,6 @@ type ResponseToken struct {
 
 // Handlers for server. Handlers are implemented using a closure.
 func (s *Server) bindHandlers() {
-	// TODO: log errors
 
 	s.echo.POST("/api/users/signup", func(c echo.Context) error {
 		var u *user.User = new(user.User)
@@ -35,8 +33,8 @@ func (s *Server) bindHandlers() {
 		}
 
 		if exists, err := s.userModel.LoginExists(context.Background(), u.Login); err != nil {
-			// TODO: log the error.
-			log.Fatal(err) // replace
+
+			s.echo.Logger.Fatal(err)
 			return c.JSON(http.StatusInternalServerError, errors.ErrInternalServerError)
 		} else if exists {
 			return c.JSON(http.StatusOK, errors.ErrLoginExists)
@@ -45,15 +43,13 @@ func (s *Server) bindHandlers() {
 		var err error = nil
 		u.Password, err = password_hash.GetPasswordHash(u.Password, s.conf.Server.Salt)
 		if err != nil {
-			// TODO: log the error.
-			log.Fatal(err) // replace
+			s.echo.Logger.Fatal(err)
 			return c.JSON(http.StatusInternalServerError, errors.ErrInternalServerError)
 		}
 
 		err = s.userModel.SaveUser(context.Background(), u)
 		if err != nil {
-			// TODO: log the error.
-			log.Fatal(err) // replace
+			s.echo.Logger.Fatal(err)
 			return c.JSON(http.StatusInternalServerError, errors.ErrInternalServerError)
 		}
 
@@ -73,8 +69,8 @@ func (s *Server) bindHandlers() {
 
 		id, password, err := s.userModel.GetIdAndPasswordByLogin(context.Background(), u.Login)
 		if err != nil {
-			// TODO: log the error.
-			log.Fatal(err) // replace
+
+			s.echo.Logger.Fatal(err)
 			return c.JSON(http.StatusInternalServerError, errors.ErrInternalServerError)
 		}
 		if id == 0 {
@@ -93,8 +89,7 @@ func (s *Server) bindHandlers() {
 			s.conf.Server.JWTKey,
 		)
 		if err != nil {
-			// TODO: log the error.
-			log.Fatal(err) // replace
+			s.echo.Logger.Fatal(err)
 			return c.JSON(http.StatusInternalServerError, errors.ErrInternalServerError)
 		}
 
@@ -104,8 +99,8 @@ func (s *Server) bindHandlers() {
 			claims.GetLifeDuration(),
 		)
 		if err != nil {
-			// TODO: log the error.
-			log.Fatal(err) // replace
+
+			s.echo.Logger.Fatal(err)
 			return c.JSON(http.StatusInternalServerError, errors.ErrInternalServerError)
 		}
 
@@ -119,12 +114,11 @@ func (s *Server) bindHandlers() {
 		}
 		err := s.tokenStorage.DeleteToken(context.Background(), token)
 		if err != nil {
-			// TODO: log the error.
-			log.Fatal(err) // replace
+			s.echo.Logger.Fatal(err)
 			return c.JSON(http.StatusInternalServerError, errors.ErrInternalServerError)
 		}
 
 		return c.JSON(http.StatusUnauthorized, errors.NoError)
 
-	}, JWT(s.conf.Server.JWTKey, s.tokenStorage))
+	}, JWT(s.conf.Server.JWTKey, s.tokenStorage, s.echo.Logger))
 }

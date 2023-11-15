@@ -8,7 +8,6 @@ import (
 
 	"time"
 
-	"log"
 	"strings"
 
 	"github.com/botscubes/user-service/internal/config"
@@ -31,15 +30,18 @@ type Server struct {
 	userModel    *usermodel.UserModel
 }
 
-func JWT(JWTKey string, tokenStorage token_storage.TokenStorage) func(next echo.HandlerFunc) echo.HandlerFunc {
+func JWT(
+	JWTKey string,
+	tokenStorage token_storage.TokenStorage,
+	logger echo.Logger,
+) func(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			tmp := c.Request().Header.Get("Authorization")
 			token := strings.TrimSpace(strings.TrimPrefix(tmp, "Bearer"))
 			exists, err := tokenStorage.CheckToken(context.Background(), token)
 			if err != nil {
-				// TODO: log error
-				log.Fatalln(err) //replace
+				logger.Fatal(err)
 				return c.JSON(http.StatusInternalServerError, errors.ErrInternalServerError)
 			}
 			if !exists {
@@ -49,8 +51,7 @@ func JWT(JWTKey string, tokenStorage token_storage.TokenStorage) func(next echo.
 			c.Set("user_id", 0)
 			c.Set("token", "")
 			if err != nil {
-				// TODO: log error
-				log.Fatalln(err) // replace
+				logger.Fatal(err)
 				return c.JSON(http.StatusInternalServerError, errors.ErrInternalServerError)
 
 			} else {
@@ -64,13 +65,12 @@ func JWT(JWTKey string, tokenStorage token_storage.TokenStorage) func(next echo.
 
 // Create user-service server.
 func NewServer() *Server {
-	// TODO: log errors
 	var err error
 	s := new(Server)
 
 	s.conf, err = config.GetConfig("configs/config.yml")
 	if err != nil {
-		log.Fatal(err)
+		s.echo.Logger.Fatal(err)
 	}
 
 	redis := redis.GetClient(&s.conf.Redis)
@@ -78,7 +78,7 @@ func NewServer() *Server {
 	s.tokenStorage = token_storage.NewRedisTokenStorage(redis)
 	s.pgpool, err = pgsql.NewPool(context.Background(), &s.conf.DB)
 	if err != nil {
-		log.Fatal(err)
+		s.echo.Logger.Fatal(err)
 	}
 
 	s.userModel = usermodel.New(context.Background(), s.pgpool)
