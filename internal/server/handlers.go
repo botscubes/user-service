@@ -34,7 +34,7 @@ func (s *Server) bindHandlers() {
 		if exists, err := s.userModel.LoginExists(context.Background(), u.Login); err != nil {
 
 			s.echo.Logger.Error(err)
-			return c.JSON(http.StatusInternalServerError, nil)
+			return c.NoContent(http.StatusInternalServerError)
 		} else if exists {
 			return c.JSON(http.StatusUnprocessableEntity, user.ErrLoginExists)
 		}
@@ -43,22 +43,22 @@ func (s *Server) bindHandlers() {
 		u.Password, err = password_hash.GetPasswordHash(u.Password, s.conf.Server.Salt)
 		if err != nil {
 			s.echo.Logger.Error(err)
-			return c.JSON(http.StatusInternalServerError, nil)
+			return c.NoContent(http.StatusInternalServerError)
 		}
 
 		err = s.userModel.SaveUser(context.Background(), u)
 		if err != nil {
 			s.echo.Logger.Error(err)
-			return c.JSON(http.StatusInternalServerError, nil)
+			return c.NoContent(http.StatusInternalServerError)
 		}
 
-		return c.JSON(http.StatusCreated, nil)
+		return c.NoContent(http.StatusCreated)
 	})
 
 	s.echo.POST("/api/users/signin", func(c echo.Context) error {
 		var u *user.User = new(user.User)
 		if err := c.Bind(u); err != nil {
-			return c.JSON(http.StatusBadRequest, nil)
+			return c.NoContent(http.StatusBadRequest)
 		}
 
 		u, service_err := user.NewUser(u.Login, u.Password)
@@ -70,7 +70,7 @@ func (s *Server) bindHandlers() {
 		if err != nil {
 
 			s.echo.Logger.Error(err)
-			return c.JSON(http.StatusInternalServerError, nil)
+			return c.NoContent(http.StatusInternalServerError)
 		}
 		if id == 0 {
 			return c.JSON(http.StatusUnprocessableEntity, user.ErrLoginNotExists)
@@ -89,7 +89,7 @@ func (s *Server) bindHandlers() {
 		)
 		if err != nil {
 			s.echo.Logger.Error(err)
-			return c.JSON(http.StatusInternalServerError, nil)
+			return c.NoContent(http.StatusInternalServerError)
 		}
 
 		err = s.tokenStorage.SaveToken(
@@ -100,7 +100,7 @@ func (s *Server) bindHandlers() {
 		if err != nil {
 
 			s.echo.Logger.Error(err)
-			return c.JSON(http.StatusInternalServerError, nil)
+			return c.NoContent(http.StatusInternalServerError)
 		}
 
 		return c.JSON(http.StatusCreated, ResponseToken{token})
@@ -109,15 +109,15 @@ func (s *Server) bindHandlers() {
 	s.echo.POST("/api/users/signout", func(c echo.Context) error {
 		token := c.Get("token").(string)
 		if token == "" {
-			return c.JSON(http.StatusUnauthorized, nil)
+			return c.NoContent(http.StatusOK)
 		}
 		err := s.tokenStorage.DeleteToken(context.Background(), token)
 		if err != nil {
 			s.echo.Logger.Error(err)
-			return c.JSON(http.StatusInternalServerError, nil)
+			return c.NoContent(http.StatusInternalServerError)
 		}
 
-		return c.JSON(http.StatusOK, nil)
+		return c.NoContent(http.StatusOK)
 
 	}, JWT(s.conf.Server.JWTKey, s.tokenStorage, s.echo.Logger))
 }

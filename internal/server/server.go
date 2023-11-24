@@ -41,17 +41,17 @@ func JWT(
 			exists, err := tokenStorage.CheckToken(context.Background(), token)
 			if err != nil {
 				logger.Error(err)
-				return c.JSON(http.StatusInternalServerError, nil)
+				return c.NoContent(http.StatusInternalServerError)
 			}
 			if !exists {
-				return c.JSON(http.StatusUnauthorized, nil)
+				return c.NoContent(http.StatusUnauthorized)
 			}
 			id, err := jwt.GetIdFromToken(token, JWTKey)
 			c.Set("user_id", 0)
 			c.Set("token", "")
 			if err != nil {
 				logger.Error(err)
-				return c.JSON(http.StatusInternalServerError, nil)
+				return c.NoContent(http.StatusInternalServerError)
 
 			} else {
 				c.Set("user_id", id)
