@@ -28,7 +28,7 @@ func (s *Server) bindHandlers() {
 
 		u, service_err := user.NewUser(u.Login, u.Password)
 		if service_err != nil {
-			return c.JSON(http.StatusOK, service_err)
+			return c.JSON(http.StatusUnprocessableEntity, service_err)
 		}
 
 		if exists, err := s.userModel.LoginExists(context.Background(), u.Login); err != nil {
@@ -73,11 +73,11 @@ func (s *Server) bindHandlers() {
 			return c.JSON(http.StatusInternalServerError, nil)
 		}
 		if id == 0 {
-			return c.JSON(http.StatusInternalServerError, user.ErrLoginNotExists)
+			return c.JSON(http.StatusUnprocessableEntity, user.ErrLoginNotExists)
 		}
 
 		if !password_hash.CheckPasswordHash(u.Password, password, s.conf.Server.Salt) {
-			return c.JSON(http.StatusOK, user.ErrPasswordIsNotEqual)
+			return c.JSON(http.StatusUnprocessableEntity, user.ErrPasswordIsNotEqual)
 		}
 		claims := jwt.NewUserClaims(
 			id,
