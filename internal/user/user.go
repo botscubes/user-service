@@ -5,7 +5,6 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"github.com/botscubes/user-service/internal/errors"
 	"github.com/botscubes/user-service/pkg/service_error"
 )
 
@@ -37,21 +36,21 @@ func (u *User) GetLogin() string {
 func (u *User) SetLogin(login string) *service_error.ServiceError {
 	login = strings.TrimSpace(login)
 	if login == "" {
-		return errors.ErrEmptyLogin
+		return ErrEmptyLogin
 	}
 
 	var len = utf8.RuneCountInString(login)
 	if len < 6 {
-		return errors.ErrShortLogin
+		return ErrShortLogin
 	}
 	if len > 30 {
-		return errors.ErrLongLogin
+		return ErrLongLogin
 	}
 	if matched, _ := regexp.MatchString(`^[A-Za-z0-9_]*`, login); !matched {
-		return errors.ErrIncorrectLogin
+		return ErrIncorrectLogin
 	}
 	u.Login = login
-	return errors.NoError
+	return nil
 }
 
 func (u *User) GetPassword() string {
@@ -61,33 +60,33 @@ func (u *User) GetPassword() string {
 func (u *User) SetPassword(password string) *service_error.ServiceError {
 	password = strings.TrimSpace(password)
 	if password == "" {
-		return errors.ErrEmptyPassword
+		return ErrEmptyPassword
 	}
 
 	var len = utf8.RuneCountInString(password)
 	if len < 6 {
-		return errors.ErrShortPassword
+		return ErrShortPassword
 	}
 	if len > 50 {
-		return errors.ErrLongPassword
+		return ErrLongPassword
 	}
 	if matched, _ := regexp.MatchString(`^[A-Za-z0-9_&?!@#$%^+=*]*`, password); !matched {
-		return errors.ErrIncorrectPassword
+		return ErrIncorrectPassword
 	}
 
-	return errors.NoError
+	return nil
 }
 
 func NewUser(login string, password string) (*User, *service_error.ServiceError) {
 	var user *User = new(User)
 
-	if err := user.SetLogin(login); err != errors.NoError {
+	if err := user.SetLogin(login); err != nil {
 		return nil, err
 	}
-	if err := user.SetPassword(password); err != errors.NoError {
+	if err := user.SetPassword(password); err != nil {
 		return nil, err
 	}
 
-	return user, errors.NoError
+	return user, nil
 
 }

@@ -13,7 +13,6 @@ import (
 	"github.com/botscubes/user-service/internal/config"
 	"github.com/botscubes/user-service/internal/db/pgsql"
 	"github.com/botscubes/user-service/internal/db/redis"
-	"github.com/botscubes/user-service/internal/errors"
 	"github.com/botscubes/user-service/internal/usermodel"
 	"github.com/botscubes/user-service/pkg/jwt"
 	"github.com/botscubes/user-service/pkg/token_storage"
@@ -42,17 +41,17 @@ func JWT(
 			exists, err := tokenStorage.CheckToken(context.Background(), token)
 			if err != nil {
 				logger.Error(err)
-				return c.JSON(http.StatusInternalServerError, errors.ErrInternalServerError)
+				return c.JSON(http.StatusInternalServerError, nil)
 			}
 			if !exists {
-				return c.JSON(http.StatusUnauthorized, errors.ErrUnauthorized)
+				return c.JSON(http.StatusUnauthorized, nil)
 			}
 			id, err := jwt.GetIdFromToken(token, JWTKey)
 			c.Set("user_id", 0)
 			c.Set("token", "")
 			if err != nil {
 				logger.Error(err)
-				return c.JSON(http.StatusInternalServerError, errors.ErrInternalServerError)
+				return c.JSON(http.StatusInternalServerError, nil)
 
 			} else {
 				c.Set("user_id", id)
