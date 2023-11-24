@@ -36,7 +36,7 @@ func (s *Server) bindHandlers() {
 			s.echo.Logger.Error(err)
 			return c.JSON(http.StatusInternalServerError, nil)
 		} else if exists {
-			return c.JSON(http.StatusOK, nil)
+			return c.JSON(http.StatusUnprocessableEntity, user.ErrLoginExists)
 		}
 
 		var err error = nil
