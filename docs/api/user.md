@@ -95,12 +95,12 @@ POST /api/users/signin
 
 
 ```plaintext
-POST /api/users/signout
+DELETE /api/users/signout
 ```
 
 #### Ответ
 
-В случае успеха - статус кода HTTP - 200.
+В случае успеха - статус кода HTTP - 204.
 Если пользователь не авторизован - 401.
 
 

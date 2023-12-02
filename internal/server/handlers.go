@@ -106,10 +106,10 @@ func (s *Server) bindHandlers() {
 		return c.JSON(http.StatusCreated, ResponseToken{token})
 	})
 
-	s.echo.POST("/api/users/signout", func(c echo.Context) error {
+	s.echo.DELETE("/api/users/signout", func(c echo.Context) error {
 		token := c.Get("token").(string)
 		if token == "" {
-			return c.NoContent(http.StatusOK)
+			return c.NoContent(http.StatusNoContent)
 		}
 		err := s.tokenStorage.DeleteToken(context.Background(), token)
 		if err != nil {
@@ -117,7 +117,7 @@ func (s *Server) bindHandlers() {
 			return c.NoContent(http.StatusInternalServerError)
 		}
 
-		return c.NoContent(http.StatusOK)
+		return c.NoContent(http.StatusNoContent)
 
 	}, JWT(s.conf.Server.JWTKey, s.tokenStorage, s.echo.Logger))
 }
