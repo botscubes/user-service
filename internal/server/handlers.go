@@ -63,7 +63,7 @@ func (s *Server) bindHandlers() {
 
 		u, service_err := user.NewUser(u.Login, u.Password)
 		if service_err != nil {
-			return c.JSON(http.StatusOK, service_err)
+			return c.JSON(http.StatusUnprocessableEntity, service_err)
 		}
 
 		id, password, err := s.userModel.GetIdAndPasswordByLogin(context.Background(), u.Login)
