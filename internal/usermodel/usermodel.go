@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/botscubes/user-service/internal/user"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -46,6 +47,9 @@ func (um *UserModel) GetIdAndPasswordByLogin(ctx context.Context, login string) 
 		"SELECT id, password FROM account WHERE login = $1", login,
 	).Scan(&id, &password)
 	if err != nil {
+		if err == pgx.ErrNoRows {
+			return 0, "", nil
+		}
 		return 0, "", err
 	}
 	return id, password, nil
