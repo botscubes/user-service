@@ -1,6 +1,8 @@
 module github.com/botscubes/user-service
 
-go 1.19
+go 1.21
+
+toolchain go1.21.4
 
 require (
 	github.com/golang-jwt/jwt/v5 v5.0.0
@@ -22,6 +24,7 @@ require (
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.17 // indirect
 	github.com/rogpeppe/go-internal v1.10.0 // indirect
+	github.com/sethvargo/go-envconfig v1.0.0 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
 	golang.org/x/net v0.10.0 // indirect

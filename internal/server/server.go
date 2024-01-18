@@ -67,7 +67,8 @@ func NewServer() *Server {
 	var err error
 	s := new(Server)
 
-	s.conf, err = config.GetConfig("configs/config.yml")
+	s.echo = echo.New()
+	s.conf, err = config.GetConfig()
 	if err != nil {
 		s.echo.Logger.Fatal(err)
 	}
@@ -81,8 +82,6 @@ func NewServer() *Server {
 	}
 
 	s.userModel = usermodel.New(context.Background(), s.pgpool)
-
-	s.echo = echo.New()
 
 	s.bindHandlers()
 
