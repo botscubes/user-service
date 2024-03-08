@@ -1,6 +1,6 @@
 module github.com/botscubes/user-service
 
-go 1.21
+go 1.21.4
 
 toolchain go1.21.4
 
